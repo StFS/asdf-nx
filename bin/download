@@ -22,8 +22,8 @@ echo "asdf-nx: downloading $TOOL_NAME@$ASDF_INSTALL_VERSION via npm pack"
 npm pack --loglevel=error \
     "$TOOL_NAME@$ASDF_INSTALL_VERSION" \
     --pack-destination "$ASDF_DOWNLOAD_PATH" \
-    > /dev/null \
-    || fail "npm pack failed for $TOOL_NAME@$ASDF_INSTALL_VERSION"
+    > /dev/null ||
+    fail "npm pack failed for $TOOL_NAME@$ASDF_INSTALL_VERSION"
 
 expected_tarball="$ASDF_DOWNLOAD_PATH/$TOOL_NAME-$ASDF_INSTALL_VERSION.tgz"
 if [[ ! -f "$expected_tarball" ]]; then

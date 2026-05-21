@@ -7,7 +7,7 @@ source "$plugin_dir/lib/utils.bash"
 
 registry="$(get_registry)"
 
-curl -sfL "$registry/$TOOL_NAME" \
-    | grep -Eo '"latest":"[^"]+"' \
-    | head -n1 \
-    | sed 's/.*"latest":"\([^"]*\)"/\1/'
+curl -sfL "$registry/$TOOL_NAME" |
+    grep -Eo '"latest":"[^"]+"' |
+    head -n1 |
+    sed 's/.*"latest":"\([^"]*\)"/\1/'
