@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+echo "homepage: https://nx.dev"
+echo "source: https://github.com/nrwl/nx"
