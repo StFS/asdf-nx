@@ -10,9 +10,11 @@ list_all_versions() {
     registry="$(get_registry)"
     url="$registry/$TOOL_NAME"
 
+    # Match only top-level version keys (followed by `:{`), not dependency-version
+    # values which are quoted strings without the `:{` suffix.
     curl -sfL -H 'Accept: application/vnd.npm.install-v1+json' "$url" |
-        grep -Eo '"[0-9]+\.[0-9]+\.[0-9]+[^"]*"' |
-        tr -d '"' |
+        grep -Eo '"[0-9]+\.[0-9]+\.[0-9]+[^"]*":\{' |
+        sed 's/^"//; s/":{$//' |
         sort -u
 }
 

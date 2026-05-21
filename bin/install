@@ -11,7 +11,7 @@ cleanup_on_error() {
     fi
     exit "$exit_code"
 }
-trap cleanup_on_error ERR
+trap cleanup_on_error ERR INT TERM
 
 plugin_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=lib/utils.bash
