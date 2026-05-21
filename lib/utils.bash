@@ -6,7 +6,7 @@
 TOOL_NAME="nx"
 DEFAULT_REGISTRY="https://registry.npmjs.org"
 # Versions matching this regex are filtered out of list-all by default.
-PRERELEASE_REGEX='(-pr-|-canary\.|-beta\.|-rc\.|-next\.)'
+PRERELEASE_REGEX='(-pr[-.]|-canary\.|-beta\.|-rc\.|-next\.)'
 
 # Print an error message in red and exit 1.
 fail() {
