@@ -19,7 +19,7 @@ ensure_npm
 mkdir -p "$ASDF_DOWNLOAD_PATH"
 
 echo "asdf-nx: downloading $TOOL_NAME@$ASDF_INSTALL_VERSION via npm pack"
-npm pack --silent \
+npm pack --loglevel=error \
     "$TOOL_NAME@$ASDF_INSTALL_VERSION" \
     --pack-destination "$ASDF_DOWNLOAD_PATH" \
     > /dev/null \
