@@ -1,0 +1,32 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly run so we notice breakage from new nx releases.
+    - cron: "0 6 * * 1"
+
+jobs:
+  plugin-test:
+    name: ${{ matrix.os }} / nx ${{ matrix.nx-version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        nx-version: ["latest", "22.7.2", "21.0.0"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Test asdf plugin
+        uses: asdf-vm/actions/plugin-test@v3
+        with:
+          command: nx --version
+          version: ${{ matrix.nx-version }}
