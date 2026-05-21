@@ -41,7 +41,7 @@ cat > "$ASDF_INSTALL_PATH/package.json" << 'JSON'
 JSON
 
 echo "asdf-nx: installing $TOOL_NAME@$ASDF_INSTALL_VERSION (resolves ~300 MB of dependencies)"
-npm install --silent \
+npm install --loglevel=error \
     --prefix "$ASDF_INSTALL_PATH" \
     --no-audit --no-fund --no-save \
     "$tarball" \
