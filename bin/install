@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Trap MUST be the first executable thing so a Node/npm-missing failure
+# also triggers cleanup.
+cleanup_on_error() {
+    local exit_code=$?
+    if [[ $exit_code -ne 0 && -d "${ASDF_INSTALL_PATH:-}" ]]; then
+        echo "asdf-nx: install failed; cleaning up $ASDF_INSTALL_PATH" >&2
+        rm -rf "$ASDF_INSTALL_PATH"
+    fi
+    exit "$exit_code"
+}
+trap cleanup_on_error ERR
+
+plugin_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=lib/utils.bash
+source "$plugin_dir/lib/utils.bash"
+
+: "${ASDF_INSTALL_TYPE:?ASDF_INSTALL_TYPE not set}"
+: "${ASDF_INSTALL_VERSION:?ASDF_INSTALL_VERSION not set}"
+: "${ASDF_INSTALL_PATH:?ASDF_INSTALL_PATH not set}"
+: "${ASDF_DOWNLOAD_PATH:?ASDF_DOWNLOAD_PATH not set}"
+
+if [[ "$ASDF_INSTALL_TYPE" != "version" ]]; then
+    fail "$TOOL_NAME does not support install type '$ASDF_INSTALL_TYPE'; only 'version' is supported"
+fi
+
+ensure_node
+ensure_npm
+
+tarball="$ASDF_DOWNLOAD_PATH/$TOOL_NAME-$ASDF_INSTALL_VERSION.tgz"
+if [[ ! -f "$tarball" ]]; then
+    fail "expected downloaded tarball not found: $tarball
+Run \`asdf install $TOOL_NAME $ASDF_INSTALL_VERSION\` to re-download."
+fi
+
+mkdir -p "$ASDF_INSTALL_PATH"
+cat > "$ASDF_INSTALL_PATH/package.json" << 'JSON'
+{"name": "asdf-nx-wrapper", "version": "0.0.0", "private": true}
+JSON
+
+echo "asdf-nx: installing $TOOL_NAME@$ASDF_INSTALL_VERSION (resolves ~300 MB of dependencies)"
+npm install --silent \
+    --prefix "$ASDF_INSTALL_PATH" \
+    --no-audit --no-fund --no-save \
+    "$tarball" \
+    > /dev/null
+
+mkdir -p "$ASDF_INSTALL_PATH/bin"
+for binname in nx nx-cloud; do
+    src="$ASDF_INSTALL_PATH/node_modules/.bin/$binname"
+    if [[ ! -e "$src" ]]; then
+        fail "expected binary not found after install: $src"
+    fi
+    ln -sf "$src" "$ASDF_INSTALL_PATH/bin/$binname"
+done
+
+echo "asdf-nx: installed $TOOL_NAME@$ASDF_INSTALL_VERSION to $ASDF_INSTALL_PATH"
