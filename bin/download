@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+plugin_dir="$(cd -P "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=lib/utils.bash
+source "$plugin_dir/lib/utils.bash"
+
+: "${ASDF_INSTALL_TYPE:?ASDF_INSTALL_TYPE not set}"
+: "${ASDF_INSTALL_VERSION:?ASDF_INSTALL_VERSION not set}"
+: "${ASDF_DOWNLOAD_PATH:?ASDF_DOWNLOAD_PATH not set}"
+
+if [[ "$ASDF_INSTALL_TYPE" != "version" ]]; then
+    fail "$TOOL_NAME does not support install type '$ASDF_INSTALL_TYPE'; only 'version' is supported"
+fi
+
+ensure_node
+ensure_npm
+
+mkdir -p "$ASDF_DOWNLOAD_PATH"
+
+echo "asdf-nx: downloading $TOOL_NAME@$ASDF_INSTALL_VERSION via npm pack"
+npm pack --silent \
+    "$TOOL_NAME@$ASDF_INSTALL_VERSION" \
+    --pack-destination "$ASDF_DOWNLOAD_PATH" \
+    > /dev/null \
+    || fail "npm pack failed for $TOOL_NAME@$ASDF_INSTALL_VERSION"
+
+expected_tarball="$ASDF_DOWNLOAD_PATH/$TOOL_NAME-$ASDF_INSTALL_VERSION.tgz"
+if [[ ! -f "$expected_tarball" ]]; then
+    fail "npm pack succeeded but expected tarball not found: $expected_tarball"
+fi
+
+echo "asdf-nx: downloaded $expected_tarball"
